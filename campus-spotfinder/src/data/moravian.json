@@ -1,0 +1,7 @@
+{
+  "center": [40.6305, -75.3782],
+  "buildings": [
+    { "name": "Reeves Library", "coords": [40.6301, -75.3789], "availability": "Open", "soundLevel": "Quiet", "wifi": "Strong", "comfort": "High" },
+    { "name": "HUB", "coords": [40.631, -75.377], "availability": "Moderate", "soundLevel": "Lively", "wifi": "Medium", "comfort": "Medium" }
+  ]
+}

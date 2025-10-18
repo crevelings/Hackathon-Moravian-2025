@@ -1,0 +1,32 @@
+.app-container {
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+}
+
+.selector {
+  margin: 1rem;
+}
+
+.uni-btn {
+  margin: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background-color: #0077b6;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+}
+
+.uni-btn:hover {
+  background-color: #0096c7;
+}
+
+.map-container {
+  margin-top: 1rem;
+}
+
+.prompt {
+  color: #555;
+  font-size: 1.1rem;
+  margin-top: 2rem;
+}

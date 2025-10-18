@@ -1,0 +1,7 @@
+{
+  "center": [40.6065, -75.3779],
+  "buildings": [
+    { "name": "Fairchild-Martindale Library", "coords": [40.607, -75.378], "availability": "Busy", "soundLevel": "Quiet", "wifi": "Strong", "comfort": "High" },
+    { "name": "Williams Hall", "coords": [40.606, -75.376], "availability": "Open", "soundLevel": "Moderate", "wifi": "Strong", "comfort": "High" }
+  ]
+}
