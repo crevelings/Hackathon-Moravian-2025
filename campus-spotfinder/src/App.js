@@ -1,20 +1,11 @@
-import React, { useState, useEffect } from "react";
-import {
-  GoogleMap,
-  Polygon,
-  useJsApiLoader,
-} from "@react-google-maps/api";
-
-const libraries = ["places"];
+import React, { useState } from "react";
 
 const campusData = {
   Moravian: {
     name: "Moravian University",
-    address: "348 Main St, Bethlehem, PA 18018",
     buildings: [
       {
         name: "PPHAC",
-        address: "1130 Monocacy St, Bethlehem, PA 18018",
         availability: "Open",
         rooms: [
           { name: "Room 101", availability: "Open", style: "Lecture" },
@@ -24,7 +15,6 @@ const campusData = {
       },
       {
         name: "HUB Lounge",
-        address: "1125 Monocacy St, Bethlehem, PA 18018",
         availability: "Moderate",
         rooms: [
           { name: "North Lounge", availability: "Open", style: "Lounge" },
@@ -32,15 +22,12 @@ const campusData = {
         ],
       },
     ],
-    centerOverride: { lat: 40.6303, lng: -75.3809 },
   },
   Lehigh: {
     name: "Lehigh University",
-    address: "421 E Packer Ave, Bethlehem, PA 18015",
     buildings: [
       {
         name: "FML Library",
-        address: "8 E Packer Ave, Bethlehem, PA 18015",
         availability: "Open",
         rooms: [
           { name: "Lower Study", availability: "Moderate", style: "Study" },
@@ -49,7 +36,6 @@ const campusData = {
       },
       {
         name: "Lamberton Hall",
-        address: "34 University Dr, Bethlehem, PA 18015",
         availability: "Moderate",
         rooms: [
           { name: "Main Hall", availability: "Busy", style: "Event Space" },
@@ -60,11 +46,9 @@ const campusData = {
   },
   DeSales: {
     name: "DeSales University",
-    address: "2755 Station Ave, Center Valley, PA",
     buildings: [
       {
         name: "Dooling Hall",
-        address: "2755 Station Ave, Center Valley, PA",
         availability: "Open",
         rooms: [
           { name: "Room A", availability: "Open", style: "Classroom" },
@@ -73,7 +57,6 @@ const campusData = {
       },
       {
         name: "University Center",
-        address: "2755 Station Ave, Center Valley, PA",
         availability: "Busy",
         rooms: [
           { name: "Ballroom", availability: "Busy", style: "Event Hall" },
@@ -87,94 +70,359 @@ const campusData = {
 const getAvailabilityColor = (level) => {
   switch (level) {
     case "Open":
-      return "#16a34a"; // green
+      return "#16a34a";
     case "Moderate":
-      return "#f59e0b"; // orange
+      return "#f59e0b";
     case "Busy":
-      return "#dc2626"; // red
+      return "#dc2626";
     default:
-      return "#6b7280"; // gray
+      return "#6b7280";
   }
 };
 
-function App() {
+// Home Screen Component
+function HomeScreen({ onNavigate }) {
+  return (
+    <div style={{
+      minHeight: "100vh",
+      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: "2rem"
+    }}>
+      <div style={{
+        maxWidth: "600px",
+        background: "white",
+        borderRadius: "20px",
+        padding: "3rem",
+        boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
+        textAlign: "center"
+      }}>
+        <h1 style={{
+          fontSize: "3rem",
+          marginBottom: "1rem",
+          color: "#1e293b",
+          fontWeight: "800"
+        }}>
+          📚 Study Spot Finder
+        </h1>
+        <p style={{
+          fontSize: "1.2rem",
+          color: "#64748b",
+          marginBottom: "2rem",
+          lineHeight: "1.6"
+        }}>
+          Find the perfect place to study across local universities. 
+          Check real-time availability and discover quiet spaces.
+        </p>
+        
+        <div style={{
+          display: "flex",
+          gap: "1rem",
+          justifyContent: "center",
+          flexWrap: "wrap"
+        }}>
+          <button
+            onClick={() => onNavigate("map")}
+            style={{
+              padding: "1rem 2rem",
+              fontSize: "1.1rem",
+              background: "#667eea",
+              color: "white",
+              border: "none",
+              borderRadius: "12px",
+              cursor: "pointer",
+              fontWeight: "600",
+              boxShadow: "0 4px 12px rgba(102, 126, 234, 0.4)",
+              transition: "transform 0.2s"
+            }}
+            onMouseOver={(e) => e.target.style.transform = "scale(1.05)"}
+            onMouseOut={(e) => e.target.style.transform = "scale(1)"}
+          >
+            Explore Buildings
+          </button>
+          
+          <button
+            onClick={() => onNavigate("profile")}
+            style={{
+              padding: "1rem 2rem",
+              fontSize: "1.1rem",
+              background: "white",
+              color: "#667eea",
+              border: "2px solid #667eea",
+              borderRadius: "12px",
+              cursor: "pointer",
+              fontWeight: "600",
+              transition: "transform 0.2s"
+            }}
+            onMouseOver={(e) => e.target.style.transform = "scale(1.05)"}
+            onMouseOut={(e) => e.target.style.transform = "scale(1)"}
+          >
+            My Profile
+          </button>
+        </div>
+
+        <div style={{
+          marginTop: "3rem",
+          display: "flex",
+          justifyContent: "space-around",
+          gap: "1rem"
+        }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>🎓</div>
+            <div style={{ fontSize: "0.9rem", color: "#64748b" }}>3 Universities</div>
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>🏢</div>
+            <div style={{ fontSize: "0.9rem", color: "#64748b" }}>Multiple Buildings</div>
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>⏱️</div>
+            <div style={{ fontSize: "0.9rem", color: "#64748b" }}>Real-time Updates</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Profile Page Component
+function ProfilePage({ onNavigate }) {
+  const [userName, setUserName] = useState("Student");
+  const [university, setUniversity] = useState("Moravian");
+  const [favoriteSpots, setFavoriteSpots] = useState([
+    "PPHAC - Room 101",
+    "HUB Lounge - North Lounge"
+  ]);
+
+  return (
+    <div style={{ minHeight: "100vh", background: "#f8fafc" }}>
+      <nav style={{
+        background: "#1e293b",
+        color: "white",
+        padding: "1rem 2rem",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center"
+      }}>
+        <h2 style={{ margin: 0 }}>📚 Study Spot Finder</h2>
+        <div style={{ display: "flex", gap: "1rem" }}>
+          <button
+            onClick={() => onNavigate("home")}
+            style={{
+              padding: "0.5rem 1rem",
+              background: "transparent",
+              color: "white",
+              border: "1px solid white",
+              borderRadius: "6px",
+              cursor: "pointer"
+            }}
+          >
+            Home
+          </button>
+          <button
+            onClick={() => onNavigate("map")}
+            style={{
+              padding: "0.5rem 1rem",
+              background: "#667eea",
+              color: "white",
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer"
+            }}
+          >
+            View Buildings
+          </button>
+        </div>
+      </nav>
+
+      <div style={{
+        maxWidth: "800px",
+        margin: "2rem auto",
+        padding: "0 1rem"
+      }}>
+        <div style={{
+          background: "white",
+          borderRadius: "12px",
+          padding: "2rem",
+          marginBottom: "1.5rem",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
+            <div style={{
+              width: "80px",
+              height: "80px",
+              borderRadius: "50%",
+              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "2.5rem"
+            }}>
+              👤
+            </div>
+            <div style={{ flex: 1 }}>
+              <input
+                type="text"
+                value={userName}
+                onChange={(e) => setUserName(e.target.value)}
+                style={{
+                  fontSize: "1.8rem",
+                  fontWeight: "bold",
+                  border: "none",
+                  borderBottom: "2px solid transparent",
+                  marginBottom: "0.5rem",
+                  width: "100%",
+                  outline: "none"
+                }}
+                onFocus={(e) => e.target.style.borderBottom = "2px solid #667eea"}
+                onBlur={(e) => e.target.style.borderBottom = "2px solid transparent"}
+              />
+              <select
+                value={university}
+                onChange={(e) => setUniversity(e.target.value)}
+                style={{
+                  padding: "0.5rem",
+                  borderRadius: "6px",
+                  border: "1px solid #cbd5e1",
+                  fontSize: "1rem"
+                }}
+              >
+                {Object.keys(campusData).map((name) => (
+                  <option key={name}>{campusData[name].name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div style={{
+          background: "white",
+          borderRadius: "12px",
+          padding: "2rem",
+          marginBottom: "1.5rem",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+        }}>
+          <h3 style={{ marginTop: 0, marginBottom: "1rem" }}>⭐ Favorite Study Spots</h3>
+          <ul style={{ listStyle: "none", padding: 0 }}>
+            {favoriteSpots.map((spot, i) => (
+              <li key={i} style={{
+                padding: "1rem",
+                background: "#f8fafc",
+                borderRadius: "8px",
+                marginBottom: "0.5rem",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center"
+              }}>
+                <span>{spot}</span>
+                <button
+                  onClick={() => setFavoriteSpots(favoriteSpots.filter((_, idx) => idx !== i))}
+                  style={{
+                    background: "#ef4444",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "4px",
+                    padding: "0.25rem 0.75rem",
+                    cursor: "pointer",
+                    fontSize: "0.9rem"
+                  }}
+                >
+                  Remove
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div style={{
+          background: "white",
+          borderRadius: "12px",
+          padding: "2rem",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+        }}>
+          <h3 style={{ marginTop: 0, marginBottom: "1rem" }}>⚙️ Study Preferences</h3>
+          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+            <label style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <input type="checkbox" defaultChecked />
+              <span>Quiet environments</span>
+            </label>
+            <label style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <input type="checkbox" />
+              <span>Group study spaces</span>
+            </label>
+            <label style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <input type="checkbox" defaultChecked />
+              <span>Near food/coffee</span>
+            </label>
+            <label style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <input type="checkbox" />
+              <span>24/7 access</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Buildings View Component
+function BuildingsView({ onNavigate }) {
   const [selectedCampus, setSelectedCampus] = useState("Moravian");
-  const [campusCenters, setCampusCenters] = useState({});
-  const [buildingCoords, setBuildingCoords] = useState({});
   const [selectedBuilding, setSelectedBuilding] = useState(null);
-
-  const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: "YOUR_GOOGLE_MAPS_API_KEY",
-    libraries,
-  });
-
-  useEffect(() => {
-    if (isLoaded) {
-      const geocoder = new window.google.maps.Geocoder();
-
-      Object.entries(campusData).forEach(([campus, data]) => {
-        geocoder.geocode({ address: data.address }, (results, status) => {
-          if (status === "OK" && results[0]) {
-            setCampusCenters((prev) => ({
-              ...prev,
-              [campus]: results[0].geometry.location,
-            }));
-          }
-        });
-
-        data.buildings.forEach((b) => {
-          geocoder.geocode({ address: b.address }, (results, status) => {
-            if (status === "OK" && results[0]) {
-              const loc = results[0].geometry.location;
-              const offset = 0.0002;
-              const square = [
-                { lat: loc.lat() + offset, lng: loc.lng() - offset },
-                { lat: loc.lat() + offset, lng: loc.lng() + offset },
-                { lat: loc.lat() - offset, lng: loc.lng() + offset },
-                { lat: loc.lat() - offset, lng: loc.lng() - offset },
-              ];
-              setBuildingCoords((prev) => ({
-                ...prev,
-                [b.name]: square,
-              }));
-            }
-          });
-        });
-      });
-    }
-  }, [isLoaded]);
-
-  if (!isLoaded) return <div>Loading map...</div>;
-  if (!campusCenters[selectedCampus])
-    return <div>Loading {selectedCampus} campus...</div>;
 
   return (
     <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
-      {/* Main Map Area */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-        <header
-          style={{
-            padding: "1rem",
-            background: "#1e293b",
-            color: "white",
-            fontWeight: "bold",
-            textAlign: "center",
-            fontSize: "1.5rem",
-          }}
-        >
-          Study Spot Finder 🧠
+        <header style={{
+          padding: "1rem",
+          background: "#1e293b",
+          color: "white",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center"
+        }}>
+          <span style={{ fontWeight: "bold", fontSize: "1.5rem" }}>
+            Study Spot Finder 📚
+          </span>
+          <div style={{ display: "flex", gap: "1rem" }}>
+            <button
+              onClick={() => onNavigate("home")}
+              style={{
+                padding: "0.5rem 1rem",
+                background: "transparent",
+                color: "white",
+                border: "1px solid white",
+                borderRadius: "6px",
+                cursor: "pointer"
+              }}
+            >
+              Home
+            </button>
+            <button
+              onClick={() => onNavigate("profile")}
+              style={{
+                padding: "0.5rem 1rem",
+                background: "#667eea",
+                color: "white",
+                border: "none",
+                borderRadius: "6px",
+                cursor: "pointer"
+              }}
+            >
+              Profile
+            </button>
+          </div>
         </header>
 
-        {/* Campus Selector */}
-        <div
-          style={{
-            padding: "0.75rem",
-            display: "flex",
-            justifyContent: "center",
-            background: "#f8fafc",
-            borderBottom: "1px solid #e2e8f0",
-          }}
-        >
+        <div style={{
+          padding: "0.75rem",
+          display: "flex",
+          justifyContent: "center",
+          background: "#f8fafc",
+          borderBottom: "1px solid #e2e8f0",
+        }}>
           <label style={{ marginRight: "0.5rem", fontWeight: "bold" }}>
             Select University:
           </label>
@@ -196,56 +444,77 @@ function App() {
           </select>
         </div>
 
-        <GoogleMap
-          center={campusCenters[selectedCampus]}
-          zoom={16}
-          mapContainerStyle={{ flex: 1 }}
-          options={{
-            streetViewControl: false,
-            mapTypeControl: false,
-          }}
-        >
-          {campusData[selectedCampus].buildings.map((b) => {
-            const coords = buildingCoords[b.name];
-            if (!coords) return null;
-            return (
-              <Polygon
-                key={b.name}
-                paths={coords}
-                options={{
-                  fillColor: getAvailabilityColor(b.availability),
-                  fillOpacity: 0.5,
-                  strokeColor: getAvailabilityColor(b.availability),
-                  strokeWeight: 2,
+        <div style={{
+          flex: 1,
+          overflowY: "auto",
+          padding: "2rem",
+          background: "#f8fafc"
+        }}>
+          <h2 style={{ marginBottom: "1.5rem", color: "#1e293b" }}>
+            {campusData[selectedCampus].name} - Buildings
+          </h2>
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+            gap: "1.5rem"
+          }}>
+            {campusData[selectedCampus].buildings.map((building, idx) => (
+              <div
+                key={idx}
+                onClick={() => setSelectedBuilding(building)}
+                style={{
+                  background: "white",
+                  borderRadius: "12px",
+                  padding: "1.5rem",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                  cursor: "pointer",
+                  transition: "transform 0.2s, box-shadow 0.2s",
+                  borderLeft: `4px solid ${getAvailabilityColor(building.availability)}`
                 }}
-                onClick={() => setSelectedBuilding(b)}
-              />
-            );
-          })}
-        </GoogleMap>
+                onMouseOver={(e) => {
+                  e.currentTarget.style.transform = "translateY(-4px)";
+                  e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.15)";
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.1)";
+                }}
+              >
+                <h3 style={{ margin: "0 0 0.5rem 0", color: "#1e293b" }}>
+                  {building.name}
+                </h3>
+                <p style={{
+                  margin: "0 0 0.75rem 0",
+                  color: getAvailabilityColor(building.availability),
+                  fontWeight: "bold"
+                }}>
+                  Status: {building.availability}
+                </p>
+                <p style={{ margin: 0, color: "#64748b", fontSize: "0.9rem" }}>
+                  {building.rooms.length} rooms available
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {/* Right Sidebar */}
       {selectedBuilding && (
-        <div
-          style={{
-            width: "350px",
-            background: "#f9fafb",
-            borderLeft: "1px solid #d1d5db",
-            padding: "1rem",
-            overflowY: "auto",
-            transition: "transform 0.3s ease",
-          }}
-        >
+        <div style={{
+          width: "350px",
+          background: "#f9fafb",
+          borderLeft: "1px solid #d1d5db",
+          padding: "1rem",
+          overflowY: "auto",
+          transition: "transform 0.3s ease",
+        }}>
           <h2 style={{ marginBottom: "0.5rem", color: "#111827" }}>
             {selectedBuilding.name}
           </h2>
-          <p
-            style={{
-              color: getAvailabilityColor(selectedBuilding.availability),
-              fontWeight: "bold",
-            }}
-          >
+          <p style={{
+            color: getAvailabilityColor(selectedBuilding.availability),
+            fontWeight: "bold",
+          }}>
             Overall: {selectedBuilding.availability}
           </p>
           <hr style={{ margin: "0.5rem 0" }} />
@@ -254,22 +523,17 @@ function App() {
           {selectedBuilding.rooms && selectedBuilding.rooms.length > 0 ? (
             <ul style={{ listStyle: "none", padding: 0 }}>
               {selectedBuilding.rooms.map((room, i) => (
-                <li
-                  key={i}
-                  style={{
-                    background: "#fff",
-                    marginBottom: "0.5rem",
-                    padding: "0.75rem",
-                    borderRadius: "8px",
-                    boxShadow: "0 1px 2px rgba(0,0,0,0.1)",
-                  }}
-                >
+                <li key={i} style={{
+                  background: "#fff",
+                  marginBottom: "0.5rem",
+                  padding: "0.75rem",
+                  borderRadius: "8px",
+                  boxShadow: "0 1px 2px rgba(0,0,0,0.1)",
+                }}>
                   <strong>{room.name}</strong>
                   <p style={{ margin: "0.25rem 0" }}>
                     Availability:{" "}
-                    <span
-                      style={{ color: getAvailabilityColor(room.availability) }}
-                    >
+                    <span style={{ color: getAvailabilityColor(room.availability) }}>
                       {room.availability}
                     </span>
                   </p>
@@ -300,6 +564,26 @@ function App() {
       )}
     </div>
   );
+}
+
+// Main App Component with Navigation
+function App() {
+  const [currentPage, setCurrentPage] = useState("home");
+
+  const handleNavigate = (page) => {
+    setCurrentPage(page);
+  };
+
+  switch (currentPage) {
+    case "home":
+      return <HomeScreen onNavigate={handleNavigate} />;
+    case "profile":
+      return <ProfilePage onNavigate={handleNavigate} />;
+    case "map":
+      return <BuildingsView onNavigate={handleNavigate} />;
+    default:
+      return <HomeScreen onNavigate={handleNavigate} />;
+  }
 }
 
 export default App;
