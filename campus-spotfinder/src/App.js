@@ -102,15 +102,14 @@ function App() {
   const [campusCenters, setCampusCenters] = useState({});
   const [buildingCoords, setBuildingCoords] = useState({});
   const [selectedBuilding, setSelectedBuilding] = useState(null);
-  const [apiKey, setApiKey] = useState(process.env.REACT_APP_GOOGLE_MAPS_API_KEY || "");
 
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: apiKey,
+    googleMapsApiKey: "YOUR_GOOGLE_MAPS_API_KEY",
     libraries,
   });
 
   useEffect(() => {
-    if (isLoaded && apiKey) {
+    if (isLoaded) {
       const geocoder = new window.google.maps.Geocoder();
 
       Object.entries(campusData).forEach(([campus, data]) => {
@@ -143,76 +142,7 @@ function App() {
         });
       });
     }
-  }, [isLoaded, apiKey]);
-
-  if (!apiKey) {
-    return (
-      <div style={{ 
-        display: "flex", 
-        flexDirection: "column", 
-        alignItems: "center", 
-        justifyContent: "center", 
-        height: "100vh",
-        padding: "2rem",
-        background: "#f8fafc"
-      }}>
-        <h1 style={{ marginBottom: "2rem", color: "#1e293b" }}>
-          Campus Spot Finder 🧠
-        </h1>
-        <div style={{ 
-          background: "white", 
-          padding: "2rem", 
-          borderRadius: "12px", 
-          boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-          minWidth: "400px"
-        }}>
-          <h2 style={{ marginBottom: "1rem", color: "#374151" }}>
-            Enter Google Maps API Key
-          </h2>
-          <p style={{ marginBottom: "1.5rem", color: "#6b7280", fontSize: "0.9rem" }}>
-            You need a Google Maps API key to use this application. Get one from the 
-            <a href="https://console.cloud.google.com/google/maps-apis" target="_blank" rel="noopener noreferrer" style={{ color: "#3b82f6", marginLeft: "0.25rem" }}>
-              Google Cloud Console
-            </a>.
-          </p>
-          <input
-            type="password"
-            placeholder="Enter your Google Maps API key"
-            value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "0.75rem",
-              border: "1px solid #d1d5db",
-              borderRadius: "6px",
-              fontSize: "1rem",
-              marginBottom: "1rem"
-            }}
-          />
-          <button
-            onClick={() => {
-              if (apiKey.trim()) {
-                // API key is set, component will re-render
-              }
-            }}
-            disabled={!apiKey.trim()}
-            style={{
-              width: "100%",
-              padding: "0.75rem",
-              background: apiKey.trim() ? "#1e293b" : "#9ca3af",
-              color: "white",
-              border: "none",
-              borderRadius: "6px",
-              fontSize: "1rem",
-              cursor: apiKey.trim() ? "pointer" : "not-allowed"
-            }}
-          >
-            Load Map
-          </button>
-        </div>
-      </div>
-    );
-  }
+  }, [isLoaded]);
 
   if (!isLoaded) return <div>Loading map...</div>;
   if (!campusCenters[selectedCampus])
